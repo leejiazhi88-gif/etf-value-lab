@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>宽基 ETF · 价值投资回测</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="results.js"></script>
+<script defer src="app.js"></script>
+</head>
+<body>
+<header><div class="shell bar"><a href="#">宽基 ETF <small> / 价值投资回测</small></a><nav><a href="#compare">回测</a><a href="#rules">规则</a><a href="#sources">数据</a></nav></div></header>
+<main class="shell">
+<section class="hero">
+<div><p class="eyebrow">A 股宽基 · 六只 ETF</p><h1>用估值决定仓位</h1><p>低估分批买，高估分批卖。用真实 ETF 成交行情模拟执行，比较情绪、资金、政策和国家队披露能否改善结果。</p></div>
+<div class="stamp">行情截至 <strong>2026-11-20</strong></div>
+</section>
+<section id="compare">
+<div class="section-head"><h2>六只 ETF 横向比较</h2><button type="button" id="export">下载回测表</button></div>
+<div class="controls">
+<label>回测区间<select id="period"></select></label>
+<label>单边成本<select id="fee"><option value="0">0.05%</option><option value="1">0.15%</option></select></label>
+<label>比较指标<select id="metric"><option value="annual">年化收益</option><option value="total">累计收益</option><option value="drawdown">最大回撤</option><option value="weight">平均仓位</option></select></label>
+</div>
+<p class="muted" id="window"></p>
+<div class="table-wrap" tabindex="0" aria-label="六只ETF回测结果"><table id="matrix"></table></div>
+<p class="muted" id="summary"></p>
+</section>
+<section id="detail">
+<div class="section-head"><h2>单只 ETF 详情</h2><label>选择指数<select id="asset"></select></label></div>
+<div class="stats" id="stats"></div>
+<div class="chart">
+<div class="section-head"><h3 id="chartTitle">净值对比</h3><label>图表<select id="curveMetric"><option value="1">净值</option><option value="2">ETF 仓位</option></select></label></div>
+<div id="legend"></div>
+<canvas id="curve" role="img" aria-label="月度回测净值与仓位图，也可在下表阅读收益和回撤"></canvas>
+<p id="chartReadout" class="muted"></p>
+</div>
+<div class="table-wrap" tabindex="0" aria-label="当前ETF各策略指标"><table id="details"></table></div>
+</section>
+<section id="rules">
+<h2>仓位与执行规则</h2>
+<p>估值分位使用指数过去三年、至少 240 个有效交易日。PE/PB 策略等权平均两个分位。仅 PE 策略用于检验加入 PB 的影响。所有择时策略初始仓位均为 50%。</p>
+<div class="table-wrap"><table><thead><tr><th>估值分位</th><th>动作</th><th>目标仓位</th></tr></thead><tbody>
+<tr><td>≤20%</td><td>分批买入</td><td>90%</td></tr><tr><td>20%–35%</td><td>分批买入</td><td>70%</td></tr><tr><td>35%–65% 之间</td><td>维持持仓</td><td>随市场波动</td></tr><tr><td>65%–80%</td><td>分批卖出</td><td>30%</td></tr><tr><td>≥80%</td><td>分批卖出</td><td>10%</td></tr>
+</tbody></table></div>
+<div class="rule-grid">
+<article><h3>情绪</h3><p>近一年周度换手率处于最低 20% 时，在低估区多买 5 个百分点。换手率处于最高 20% 时，在高估区多卖 5 个百分点。成长指数优先用对应指数换手率。</p></article>
+<article><h3>大资金</h3><p>参考过去 20 个交易日 ETF 份额变化折算净申赎。净申购时买入加快、卖出放慢，净赎回时方向相反，幅度 5 个百分点。信号至少滞后一日。中证1000用同指数 512100 观察申赎，成交回测仍用 159845。</p></article>
+<article><h3>政策</h3><p>三项已核对公开日期的支持政策各观察 28 天。低估买入加快、高估卖出放慢，幅度 5 个百分点。事件由历史档案筛选，结果用于探索。</p><ul id="policy"></ul></article>
+<article><h3>国家队</h3><p>使用基金报告具名持有人，按公告日生效 56 天。持有份额及占比须同向且达到门槛，增持或减持影响步长 5 个百分点。报告缺少具名表时维持中性。净申赎包含各类投资者。</p></article>
+</div>
+<p>每周复核一次，使用前一交易日及此前已知数据，在下一周首个交易日开盘模拟成交。默认每次最多调整 10 个百分点。综合策略加总修正后限定在 0–20 个百分点，任何信号只改变操作速度。现金收益按零计算，允许小数份额，单边成本合并模拟手续费与滑点。复权价格模拟分红再投资，期末按收盘计价。</p>
+<p class="muted">最大回撤使用每日收盘净值，图表按月采样。各区间独立初始化。前后段为分段检验，策略参数未做样本外验证。恒定 50% 每周再平衡一次，用于比较仓位较低是否足以解释回撤差异。</p>
+</section>
+<section id="sources">
+<h2>数据口径与市场背景</h2>
+<div class="rule-grid" id="context"></div>
+<h3>科创50 · PE 数据源对照</h3>
+<p id="starWindow" class="muted"></p>
+<div class="table-wrap"><table id="starCheck"></table></div>
+<p>指数主信号使用 Tushare 指数 PE(TTM) 与 PB，创业板周度 PB 优先使用项目 6 的同指数记录，其余交易日使用 Tushare。ETF 使用 Tushare 场内基金开盘、收盘与同期复权因子。历史估值使用现有可下载序列，尚未核验逐日原始快照是否经过供应商事后修订。 <a href="https://tushare.pro/document/2?doc_id=128">指数估值</a> · <a href="https://tushare.pro/document/2?doc_id=127">ETF 日线</a></p>
+</section>
+</main>
+<footer class="shell">历史行情模拟 · 页面为 2026-11-20 研究快照</footer>
+</body>
+</html>
