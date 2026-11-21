@@ -1,13 +1,18 @@
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
-const start = '2016-11-21';
+const longWindow = process.argv.includes('--20');
+const start = longWindow ? '2006-11-21' : '2016-11-21';
 const end = '2026-11-20';
 const endExclusive = '2026-11-21';
 const cost = 0.0005;
 const days = (a,b) => (Date.parse(a)-Date.parse(b))/86400000;
 const iso = date => date.replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
 const files = fs.readdirSync('work');
-const series = (key,code) => files.filter(f=>f.startsWith(key+'-'+code+'-')&&f.endsWith('.json'))
+const series = (key,code) => files.filter(f=>{
+  const primary=key+'-'+code+'-';
+  const extended='pe20-'+(key==='val'?'index_dailybasic':key)+'-'+code+'-';
+  return f.endsWith('.json')&&(f.startsWith(primary)||(longWindow&&f.startsWith(extended)));
+})
   .flatMap(f=>JSON.parse(fs.readFileSync('work/'+f,'utf8')))
   .sort((a,b)=>a.trade_date.localeCompare(b.trade_date));
 const assets = [
@@ -27,8 +32,14 @@ function run([name,index,code]) {
   });
   assert.equal(quotes.length,new Set(quotes.map(q=>q.date)).size);
   assert.equal(quotes.at(-1).date,end);
-  const valuations = series('val',index).filter(r=>r.pe_ttm>0&&iso(r.trade_date)<=end)
-    .map(r=>({date:iso(r.trade_date),pe:r.pe_ttm}));
+  const valuationByDay = new Map();
+  for(const r of series('val',index).filter(r=>r.pe_ttm>0&&iso(r.trade_date)<=end)){
+    const d=iso(r.trade_date);
+    assert(!valuationByDay.has(d)||valuationByDay.get(d).pe===r.pe_ttm,'Conflicting PE '+index+' '+d);
+    valuationByDay.set(d,{date:d,pe:r.pe_ttm});
+  }
+  const valuations = [...valuationByDay.values()];
+  const indexDays = new Map(series('index_daily',index).map(r=>[iso(r.trade_date),r]));
   assert.equal(valuations.length,new Set(valuations.map(q=>q.date)).size);
   let left=0;
   const signals=valuations.map((v,i)=>{
@@ -61,7 +72,12 @@ function run([name,index,code]) {
     if(!firstEligible&&signal?.rank!=null) firstEligible=q.date;
     if(firstEligible) eligibleSessions++;
     const fresh=signal?.rank!=null&&signal.date!==lastProcessed;
-    const execution=()=>({signal:signal.date,pe:signal.pe,rank:signal.rank,date:q.date,open:q.open});
+    const execution=()=>{
+      const signalClose=indexDays.get(signal.date)?.close;
+      const indexOpen=indexDays.get(q.date)?.open;
+      if(longWindow) assert(signalClose>0&&indexOpen>0,'Index point missing '+index+' '+q.date);
+      return {signal:signal.date,pe:signal.pe,rank:signal.rank,date:q.date,open:q.open,signalClose,indexOpen};
+    };
     if(fresh){
       if(!position&&signal.rank<=0.2) position={buy:execution(),price:q.adjOpen,sessions:0};
       else if(position&&signal.rank>=0.8) closePeriod(q.adjOpen,execution());
@@ -82,14 +98,21 @@ function run([name,index,code]) {
   assert.equal(trades.reduce((sum,t)=>sum+t.sessions,0),fullSessions);
   assert(duration<=days(endExclusive,firstEligible));
   assert(eligibleSessions<=quotes.length);
+  const weekly = new Map();
+  for(const [date,row] of indexDays){
+    if(date<start||date>end||!(row.close>0)) continue;
+    const w=Math.floor((Date.parse(date)/86400000+3)/7);
+    weekly.set(w,[date,Number(row.close.toFixed(2)),valuationByDay.get(date)?.pe??null]);
+  }
   return {
     name,index,code, firstTrading:quotes[0].date,firstEligible,lastTrading:last.date,
     availableDays:days(endExclusive,quotes[0].date), eligibleDays:days(endExclusive,firstEligible),
     sessions:quotes.length,eligibleSessions,fullSessions,duration,trades,currentPosition,pending,lastSignal,
-    total:capital-1, hold:last.adjClose/(quotes[0].adjOpen*(1+cost))-1
+    total:capital-1, hold:last.adjClose/(quotes[0].adjOpen*(1+cost))-1, weekly:[...weekly.values()]
   };
 }
 const result={start,end,endExclusive,cost,calendarDays:days(endExclusive,start),assets:assets.map(run)};
-fs.writeFileSync('work/site/pe10-data.js','window.PE10 = '+JSON.stringify(result)+';\n');
-fs.writeFileSync('work/pe10.json',JSON.stringify(result,null,2));
+const slug=longWindow?'pe20':'pe10';
+fs.writeFileSync('work/site/'+slug+'-data.js','window.PE10 = '+JSON.stringify(result)+';\n');
+fs.writeFileSync('work/'+slug+'.json',JSON.stringify(result,null,2));
 for(const a of result.assets) console.log(a.name,a.firstTrading,a.firstEligible,a.duration,a.fullSessions,a.trades.map(t=>[t.buy.date,t.sell?.date,t.duration]),a.pending);

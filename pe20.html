@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>纯 PE 二十年回测 · 指数点位与买卖信号</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pe10.css">
+<link rel="stylesheet" href="pe20.css">
+<script defer src="pe20-data.js"></script>
+<script defer src="pe10.js"></script>
+<script defer src="pe20.js"></script>
+</head>
+<body>
+<header><div class="shell bar"><a href="index.html">宽基 ETF <small> / 价值投资回测</small></a><nav><a href="#charts">买卖图</a><a href="#exposure">满仓时间</a><a href="pe10.html">十年版</a></nav></div></header>
+<main class="shell">
+<section class="hero">
+<div><p class="eyebrow">六只宽基 ETF · 纯 PE</p><h1>二十年买卖点</h1><p>PE 分位低至 20% 买满，高至 80% 清仓。沿着指数走势看每次触发时的点位、PE 和随后持有了多久。</p></div>
+<div class="stamp">二十年回测窗口<strong>2006-11-21 → 2026-11-20</strong></div>
+</section>
+<section id="charts">
+<div class="section-head"><h2>指数点位与 PE</h2><div class="controls trade-controls"><label>指数<select id="chartAsset"></select></label><label>图表范围<select id="chartRange"><option value="all">二十年</option><option value="active">可执行期</option></select></label></div></div>
+<div class="legend"><span><i class="swatch holding"></i>买入信号</span><span><i class="swatch selling"></i>卖出信号</span><span><i class="swatch held-band"></i>满仓期间</span></div>
+<div class="chart dual-chart">
+<h3>指数收盘点位</h3><canvas id="pointsChart" role="img" aria-label="指数点位走势图及精确买卖信号"></canvas>
+<h3>指数 PE(TTM)</h3><canvas id="peChart" role="img" aria-label="指数滚动市盈率走势图及精确买卖信号"></canvas>
+<div class="marker-buttons" id="markerChoices" aria-label="选择买卖信号"></div>
+<p id="markerInfo" aria-live="polite"></p>
+<p class="muted">曲线按周末交易日采样，标记使用信号日精确值。阴影从 ETF 成交开始。点击两张图中的买卖点可查看完整记录。</p>
+</div>
+</section>
+<section id="exposure">
+<h2>满仓时间与收益</h2>
+<div class="legend"><span><i class="swatch holding"></i>满仓</span><span><i class="swatch cash"></i>空仓</span><span><i class="swatch unavailable"></i>未上市或估值预热</span></div>
+<div class="timeline" id="timeline"></div>
+<p class="muted">点击满仓区段可跳转到对应买卖记录。二十年占比分母统一为 7,305 个自然日。可执行期从 ETF 有实际行情且估值样本达到门槛开始。</p>
+<div class="table-wrap" tabindex="0" aria-label="六只ETF持仓与收益对比"><table id="summary"></table></div>
+</section>
+<section id="trades">
+<div class="section-head"><h2>逐轮买卖明细</h2><div class="controls trade-controls"><label>ETF<select id="filter"><option value="">全部六只</option></select></label><button id="export" type="button">下载买卖明细</button></div></div>
+<p class="muted" id="status"></p>
+<div class="table-wrap" tabindex="0" aria-label="买卖成交及指数点位"><table id="tradeTable"></table></div>
+</section>
+<section id="method">
+<h2>回测口径</h2>
+<p>使用指数自身滚动三年 PE 分位，至少 240 个历史观测。空仓时分位 ≤20% 触发买入，满仓时分位 ≥80% 触发卖出。图中标记使用触发当日的指数收盘与 PE。成交明细同时给出下一可交易日指数开盘和 ETF 开盘。</p>
+<p>策略日终判断、下一可交易日开盘模拟成交。收益使用 ETF 复权行情，单边成本 0.05%，现金收益为零。上市以前可以查看指数图，策略从该 ETF 的可执行期开始。历史估值使用供应商现有序列，可能有事后修订。 <a href="https://tushare.pro/document/2?doc_id=95">指数点位来源</a> · <a href="https://tushare.pro/document/2?doc_id=128">估值来源</a></p>
+<div class="table-wrap" tabindex="0" aria-label="ETF覆盖期"><table id="coverage"></table></div>
+</section>
+</main>
+<footer class="shell"><a href="pe10.html">查看十年版</a> · <a href="https://github.com/leejiazhi88-gif/etf-value-lab">GitHub</a></footer>
+</body>
+</html>
