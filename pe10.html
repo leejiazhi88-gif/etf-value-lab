@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>纯 PE 十年回测 · 满仓与清仓</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pe10.css">
+<script defer src="pe10-data.js"></script>
+<script defer src="pe10.js"></script>
+</head>
+<body>
+<header><div class="shell bar"><a href="index.html">宽基 ETF <small> / 价值投资回测</small></a><nav><a href="#exposure">满仓时间</a><a href="#trades">买卖明细</a><a href="#method">回测口径</a></nav></div></header>
+<main class="shell">
+<section class="hero">
+<div><p class="eyebrow">六只宽基 ETF · 纯 PE</p><h1>低估满仓，高估清仓</h1><p>空仓时，PE 分位进入最低 20% 就一次买满。持仓后，一直等到分位进入最高 20% 才全部卖出。</p></div>
+<div class="stamp">十年回测窗口<strong>2016-11-21 → 2026-11-20</strong></div>
+</section>
+<section id="exposure">
+<div class="section-head"><h2>十年里，有多久是满仓？</h2></div>
+<div class="legend"><span><i class="swatch holding"></i>满仓</span><span><i class="swatch cash"></i>空仓</span><span><i class="swatch unavailable"></i>未上市或估值预热</span></div>
+<div class="timeline" id="timeline"></div>
+<p class="muted">点击满仓区段可跳转到对应买卖记录。满仓时长按自然日计算，含期间的周末和节假日。</p>
+<div class="table-wrap" tabindex="0" aria-label="六只ETF持仓与收益对比"><table id="summary"></table></div>
+<p class="muted">计算占比时，十年分母统一为 3,652 天。可执行期从 ETF 有成交行情且 PE 分位达到最低样本数时开始，具体日期见下方。</p>
+</section>
+<section id="trades">
+<div class="section-head"><h2>每一轮买入与卖出</h2><div class="controls trade-controls"><label>ETF<select id="filter"><option value="">全部六只</option></select></label><button id="export" type="button">下载买卖明细</button></div></div>
+<p class="muted" id="status"></p>
+<div class="table-wrap" tabindex="0" aria-label="买卖成交、信号日和持有时长"><table id="tradeTable"></table></div>
+</section>
+<section id="method">
+<h2>计算口径</h2>
+<p>用对应指数的 PE(TTM)，比较当日数值在此前三年有效观测中的分位，至少需要 240 条数据，同值取中位。开始时持有现金。PE 分位 ≤20% 时满仓买入，持仓期间只在分位 ≥80% 时清仓，再等待下一轮。每日收盘后读取估值，按 ETF 下一可交易日开盘价模拟成交。</p>
+<p>持有天数从买入日计至卖出日前一天。期末持仓计至 2026-11-20，并按当日收盘价估值。ETF 收益使用复权行情模拟分红再投，单边成本 0.05%，现金收益为零，允许小数份额。买入持有基准从该 ETF 区间内首个开盘买入，均为历史行情模拟。历史估值保留供应商当前序列，可能存在事后修订。</p>
+<p>中证1000按指定交易代码 159845，基金为华夏。科创50采用与上一页主回测一致的 Tushare PE(TTM) 序列。 <a href="https://www.szse.cn/disclosure/notice/fund/t20210326_585267.html">159845 上市通知</a> · <a href="https://www.sse.com.cn/disclosure/fund/announcement/c/2020-11-11/588000_20201111_2.pdf">588000 上市公告</a> · <a href="https://tushare.pro/document/2?doc_id=128">估值字段</a></p>
+<div class="table-wrap" tabindex="0" aria-label="ETF覆盖期"><table id="coverage"></table></div>
+</section>
+</main>
+<footer class="shell"><a href="index.html">返回策略对照</a> · <a href="https://github.com/leejiazhi88-gif/etf-value-lab">GitHub</a></footer>
+</body>
+</html>
