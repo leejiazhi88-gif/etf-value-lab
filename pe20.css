@@ -1,1 +1,6 @@
 .dual-chart{margin-top:8px}.dual-chart h3{margin:7px 0 0}.dual-chart canvas{height:230px}.dual-chart canvas:first-of-type{height:292px}.dual-chart canvas:last-of-type{height:205px}.selling{background:#f59a93}.held-band{background:#25443c}.marker-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.marker-buttons button{font-size:.76rem;padding:4px 7px}.marker-buttons button[aria-pressed=true]{border-color:var(--gold);background:#2a3934}#markerInfo{color:var(--ink);line-height:1.65;min-height:3.3em;font-variant-numeric:tabular-nums}#markerInfo a{white-space:nowrap}@media(max-width:660px){.dual-chart{padding:10px}.dual-chart canvas:first-of-type{height:230px}.dual-chart canvas:last-of-type{height:175px}}
+.dual-chart .cursor-date{color:var(--muted);font-size:.85rem;padding-bottom:8px;margin-bottom:11px;border-bottom:1px solid var(--edge)}
+.cursor-date time{margin-left:8px;font:1rem ui-monospace,monospace;color:var(--ink)}
+.plot-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.plot-head strong{font-size:.94rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.dual-chart canvas{cursor:crosshair}

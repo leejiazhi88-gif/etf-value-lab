@@ -6,10 +6,10 @@
 <title>纯 PE 二十年回测 · 指数点位与买卖信号</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="pe10.css">
-<link rel="stylesheet" href="pe20.css">
-<script defer src="pe20-data.js"></script>
+<link rel="stylesheet" href="pe20.css?v=2">
+<script defer src="pe20-data.js?v=2"></script>
 <script defer src="pe10.js"></script>
-<script defer src="pe20.js"></script>
+<script defer src="pe20.js?v=2"></script>
 </head>
 <body>
 <header><div class="shell bar"><a href="index.html">宽基 ETF <small> / 价值投资回测</small></a><nav><a href="#charts">买卖图</a><a href="#exposure">满仓时间</a><a href="pe10.html">十年版</a></nav></div></header>
@@ -22,11 +22,17 @@
 <div class="section-head"><h2>指数点位与 PE</h2><div class="controls trade-controls"><label>指数<select id="chartAsset"></select></label><label>图表范围<select id="chartRange"><option value="all">二十年</option><option value="active">可执行期</option></select></label></div></div>
 <div class="legend"><span><i class="swatch holding"></i>买入信号</span><span><i class="swatch selling"></i>卖出信号</span><span><i class="swatch held-band"></i>满仓期间</span></div>
 <div class="chart dual-chart">
-<h3>指数收盘点位</h3><canvas id="pointsChart" role="img" aria-label="指数点位走势图及精确买卖信号"></canvas>
-<h3>指数 PE(TTM)</h3><canvas id="peChart" role="img" aria-label="指数滚动市盈率走势图及精确买卖信号"></canvas>
+<div class="cursor-date">观察日期 <time id="cursorDate"></time></div>
+<div class="plot-head"><h3>指数收盘点位</h3><strong id="cursorPoints"></strong></div>
+<canvas id="pointsChart" tabindex="0" role="img" aria-label="指数点位及买卖信号，左右方向键浏览周度数据"></canvas>
+<div class="plot-head"><h3>指数 PE(TTM)</h3><strong id="cursorPe"></strong></div>
+<canvas id="peChart" tabindex="0" role="img" aria-label="指数滚动市盈率及买卖信号，左右方向键浏览周度数据"></canvas>
+<div class="plot-head"><h3>过去十年 PE 分位</h3><strong id="cursorRank"></strong></div>
+<canvas id="rankChart" tabindex="0" role="img" aria-label="十年 PE 分位走势图，左右方向键浏览周度数据"></canvas>
+<p class="muted">十年分位使用此前十年的日度 PE。历史不足十年的时段用可用历史计算，以虚线显示，少于 240 个观测时留空。买卖策略仍用三年分位。</p>
 <div class="marker-buttons" id="markerChoices" aria-label="选择买卖信号"></div>
 <p id="markerInfo" aria-live="polite"></p>
-<p class="muted">曲线按周末交易日采样，标记使用信号日精确值。阴影从 ETF 成交开始。点击两张图中的买卖点可查看完整记录。</p>
+<p class="muted">曲线取每周最后一个交易日。移入任一图同步读数，移出后恢复最新值。买卖标记对应日度信号，阴影从 ETF 成交开始。</p>
 </div>
 </section>
 <section id="exposure">
